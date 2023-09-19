@@ -16,15 +16,54 @@ wsdl2h默认不支持HTTPS，编译的时候需要开启https支持
 
 > sudo make install
 
-# 在gsoap目录操作
-## 复制源码gsoap/typemap.dat到目录下
-## 生成onvif.h
-执行命令
-> ./1.gen_head.sh
+# 复制会用到的源码
+# 以下文件（夹）复制到gsoap目录下
+- gsoap/import
+- gsoap/custom
+- gsoap/plugin
+- gsoap/stdsoap2.cpp
+- gsoap/stdsoap2.h
+- gsoap/typemap.dat
 
-该脚本会下载相应wsdl文件（需要自己配置），并且修改onvif.h文件，加入鉴权的相关项。如果onvif.h不加入#import "wsse.h"，使用soap_wsse_add_UsernameTokenDigest函数会导致编译出错
+## 修改typemap.dat
 
-执行结果如下：
+由于后续编译源代码需要用到 duration.c 文件，会遇到类型LONG64报错的问题，需要typemap.dat 文件中取消以下行的注释：
+
+xsd__duration = #import “custom/duration.h” | xsd__duration
+
+
+# 生成头文件onvif.h
+## 执行命令
+> ./step1_gen_head.sh
+
+此步骤会生成onvif_head/onvif.h文件。
+该脚本会在线下载wsdl文件（需要自己配置），并且修改onvif.h文件，加入鉴权的相关项。
+## 命令解析
+step1_gen_head.sh主要使用了wsdl2h命令来生成onvif.h文件。wsdl2h参数解析：
+```
+-c ： 生成c风格代码（注：后缀名还是.cpp ，但实际上是.c）
+-c++：生成c++风格代码（注 : 默认是生成c++代码）
+-x : 表示不生成xml 文件（注：生成的xml文件，有助于了解发送是SOAP是怎样的结构，建议不使用-x）
+-l : 表示指定导入路径
+-C : 表示生成客户端代码
+-S : 表示生成服务端代码
+-s : 不使用STL代码
+-o: 生成.h文件叫什么名字
+-t : 后面紧跟“typemap.dat”这个批处理文件
+```
+## 关于鉴权
+如果onvif.h不加入#import "wsse.h"，使用soap_wsse_add_UsernameTokenDigest函数会导致编译出错，也就无法登录设备进行操作了。
+
+## wsdl相关文件的功能范围
+- https://www.onvif.org/ver10/device/wsdl/devicemgmt.wsdl 用于获取设备参数
+- https://www.onvif.org/onvif/ver10/network/wsdl/remotediscovery.wsdl 用于发现设备
+- https://www.onvif.org/onvif/ver20/ptz/wsdl/ptz.wsdl 云台控制
+- https://www.onvif.org/onvif/ver10/media/wsdl/media.wsdl 获取264的视频流地址
+- https://www.onvif.org/onvif/ver20/media/wsdl/media.wsdl 获取h265视频流地址
+- http://www.onvif.org/onvif/ver20/imaging/wsdl/imaging.wsdl 光圈，对比度，饱和度
+
+## 执行结果
+
 ```
 gsoap$ ./1.gen_head.sh 
 Saving onvif.h
@@ -71,16 +110,11 @@ Or to generate C++ proxy and service classes:
 
 ```
 
-## 生成代码
+# 生成代码
+生成可以用于工程实践的相关源代码文件
 
-### 复制下列源代码到gsoap下
-- gsoap/import
-- gsoap/custom
-- gsoap/plugin
-- stdsoap2.cpp
-- stdsoap2.h
-
-### 修改文件避免错误
+## gsoap源代码类型重复定义
+如果没有修改相关文件，生成代码的时候会出现如下错误。
 ```
 wsa5.h(280): *WARNING*: Duplicate declaration of 'SOAP_ENV__Fault' (already declared at line 268)
 wsa5.h(290): **ERROR**: service operation name clash: struct/class 'SOAP_ENV__Fault' already declared at wsa.h:278
@@ -92,28 +126,27 @@ wsa5.h(290): **ERROR**: service operation name clash: struct/class 'SOAP_ENV__Fa
 
 > #import "wsa5.h"   // wsa.h和wsa5.h两个文件重复定义了int SOAP_ENV__Fault
 
-解决方法：
-
-修改import\wsa5.h文件，将int SOAP_ENV__Fault修改为int SOAP_ENV__Fault_alex，再次使用soapcpp2工具编译就成功了
-
-
-### 执行生成命令
->./2.gen_code.sh
+### 解决方法：
+修改import\wsa5.h文件，将int SOAP_ENV__Fault修改为int SOAP_ENV__Fault_xxx，再次使用soapcpp2工具编译就成功了
 
 
-关联自己的命名空间，修改stdsoap2.c文件
+## 执行生成命令
+>./step2_gen_code.sh
 
-在samples\onvif\stdsoap2.h中有命名空间「namespaces变量」的定义声明，如下所示：
 
-extern SOAP_NMAC struct Namespace namespaces[];
-1
-但「namespaces变量」的定义实现，是在samples\onvif\wsdd.nsmap文件中，为了后续应用程序要顺利编译，修改samples\onvif\stdsoap2.c文件，在开头加入：
+脚本已经删除了一些无用文件、复制并重命名了相关文件。
 
-#include "wsdd.nsmap"
-1
-当然，你可以在其他源码中（更上层的应用程序源码）include，我这里是选择在stdsoap2.c中include
-————————————————
-版权声明：本文为CSDN博主「许振坪」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/benkaoya/article/details/72466827
+### 删除无用文件
 
 其中onvif.h文件其实已经没用了，可以删掉，不需要参与后续IPC客户端程序的编译。这里有好多个命名空间的.nsmap文件，文件内容都一模一样，拿wsdd.nsmap一个来用即可，其他也没卵用。
+
+### 复制其他可能有用的一些文件
+soapC.c会调用到soap_in_xsd__duration函数，需要duration.c和duration.h文件。
+后续示例代码会调用到soap_wsa_rand_uuid函数（用于生成UUID），需要wsaapi.c和wsaapi.h文件。
+
+### 保留文件说明
+• 各种nsmap文件：命名空间，除了名字不一样，内容是一样的，里面的内容竟然是每一个xml文件里的Envelope字段内容。我们只需要留下一个就可以了，并将之改名为wsdd.nsmap
+• soapC.cpp：指定数据结构的序列化和反序列化
+• soapClient.cpp：客户端代码
+• soapH.h：主头文件，所有客户机和服务器源代码都要包括它
+• soapStub.h：从输入头文件（onvif.h）生成的经过修改且带命名空间前缀的头文件
