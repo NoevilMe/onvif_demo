@@ -53,6 +53,7 @@
         "streambuf": "cpp",
         "typeinfo": "cpp",
         "complex": "cpp",
-        "*.nsmap": "cpp"
+        "*.nsmap": "cpp",
+        "fstream": "cpp"
     }
 }

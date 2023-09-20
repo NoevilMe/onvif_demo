@@ -27,8 +27,6 @@ target_link_libraries(onvif PUBLIC onvif_soap)
 
 add_executable(dev_scan tests/scan_device.cpp)
 target_link_libraries(dev_scan PRIVATE onvif)
-target_include_directories(dev_scan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/soap)
 
 add_executable(dev_info tests/get_device_information.cpp)
 target_link_libraries(dev_info PRIVATE onvif)
-target_include_directories(dev_info PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/soap)
