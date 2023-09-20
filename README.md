@@ -1,3 +1,10 @@
+# 目录说明
+- gsoap 源码目录（直接从gosap下复制过来的，用来生成后面的一些文件）
+- soap 以后工程上会用到的一些文件可以放这里。直接从gsoap目录下复制，但是有些文件被重命名为cpp
+- onvif 根据wsdl生成的一些文件
+- tests 示例
+- onvif_head 中间文件，可以删除
+
 # 下载编译gSoap
 安装依赖 
 > sudo apt install bison flex openssl
@@ -17,13 +24,14 @@ wsdl2h默认不支持HTTPS，编译的时候需要开启https支持
 > sudo make install
 
 # 复制会用到的源码
-# 以下文件（夹）复制到gsoap目录下
+# 以下文件（夹）复制到gsoap目录下（脚本已经自动完成了）
 - gsoap/import
 - gsoap/custom
 - gsoap/plugin
 - gsoap/stdsoap2.cpp
 - gsoap/stdsoap2.h
 - gsoap/typemap.dat
+- ...
 
 ## 修改typemap.dat
 

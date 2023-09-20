@@ -276,7 +276,7 @@ mutable struct SOAP_ENV__Header
 
 // Added
 //gsoap SOAP_ENV service method-action: Fault http://www.w3.org/2005/08/addressing/soap/fault
-int SOAP_ENV__Fault__noveil
+int SOAP_ENV__Fault_xxx
 (       _QName			 faultcode,		// SOAP 1.1
         char			*faultstring,		// SOAP 1.1
         char			*faultactor,		// SOAP 1.1

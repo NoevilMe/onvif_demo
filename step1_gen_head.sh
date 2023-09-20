@@ -46,3 +46,4 @@ sed -i '122 a #import "wsse.h"' ${DST}
 # import "wsse.h"
 # 如果onvif.h不加入#import "wsse.h"，使用soap_wsse_add_UsernameTokenDigest函数会导致编译出错（错误信息如下)：
 # wsse2api.c(183): error C2039: “wsse__Security”: 不是“SOAP_ENV__Header”的成员
+sed -i 's/int SOAP_ENV__Fault$/int SOAP_ENV__Fault_xxx/g' gsoap/import/wsa5.h

@@ -1,10 +1,10 @@
-#include "../soap/soapH.h"
-#include "../soap/wsaapi.h"
+#include "onvif/soapH.h"
+#include "soap/wsaapi.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../soap/wsdd.nsmap"
+#include "onvif/wsdd.nsmap"
 
 #define SOAP_ASSERT assert
 #define SOAP_DBGLOG printf
@@ -19,6 +19,17 @@
 #define SOAP_TYPES "dn:NetworkVideoTransmitter" // 寻找的设备类型
 
 #define SOAP_SOCK_TIMEOUT (10) // socket超时时间（单秒秒）
+
+#define SOAP_CHECK_ERROR(result, soap, str)                                    \
+    do {                                                                       \
+        if (SOAP_OK != (result) || SOAP_OK != (soap)->error) {                 \
+            soap_perror((soap), (str));                                        \
+            if (SOAP_OK == (result)) {                                         \
+                (result) = (soap)->error;                                      \
+            }                                                                  \
+            goto EXIT;                                                         \
+        }                                                                      \
+    } while (0)
 
 void soap_perror(struct soap *soap, const char *str) {
     if (NULL == str) {
@@ -165,10 +176,37 @@ void ONVIF_DetectDevice(void (*cb)(char *DeviceXAddr)) {
                     for (i = 0; i < rep.wsdd__ProbeMatches->__sizeProbeMatch;
                          i++) {
                         probeMatch = rep.wsdd__ProbeMatches->ProbeMatch + i;
-                        if (NULL != cb) {
-                            cb(probeMatch
-                                   ->XAddrs); // 使用设备服务地址执行函数回调
-                        }
+                        std::cout << probeMatch->XAddrs << ", "
+                                  << probeMatch->Types << std::endl;
+
+                        // {
+                        //     struct _tds__GetDeviceInformation devinfo_req;
+                        //     struct _tds__GetDeviceInformationResponse
+                        //         devinfo_resp;
+
+                        //     memset(&devinfo_req, 0x00, sizeof(devinfo_req));
+                        //     memset(&devinfo_resp, 0x00,
+                        //     sizeof(devinfo_resp)); result =
+                        //     soap_call___tds__GetDeviceInformation(
+                        //         soap, probeMatch->XAddrs, NULL, &devinfo_req,
+                        //         devinfo_resp);
+
+                        //     //
+                        //     dump_tds__GetDeviceInformationResponse(&devinfo_resp);
+                        //     printf("Manufacturer:%s\n",
+                        //            devinfo_resp.Manufacturer);
+                        //     printf("Model:%s\n", devinfo_resp.Model);
+                        //     printf("FirmwareVersion:%s\n",
+                        //            devinfo_resp.FirmwareVersion);
+                        //     printf("SerialNumber:%s\n",
+                        //            devinfo_resp.SerialNumber);
+                        //     printf("HardwareId:%s\n",
+                        //     devinfo_resp.HardwareId);
+                        // }
+                        // if (NULL != cb) {
+                        //     cb(probeMatch
+                        //            ->XAddrs); // 使用设备服务地址执行函数回调
+                        // }
                     }
                 }
             }
@@ -187,7 +225,7 @@ void ONVIF_DetectDevice(void (*cb)(char *DeviceXAddr)) {
 }
 
 int main(int argc, char **argv) {
-    ONVIF_DetectDevice(NULL);
+    ONVIF_DetectDevice(nullptr);
 
     return 0;
 }

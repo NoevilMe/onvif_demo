@@ -14,9 +14,7 @@ fi
 #-L表示不生成客户端或者服务端的库，-I表示import导入路径
 
 pushd gsoap
-
-soapcpp2 -2 -c++11 -C -L -x -I import:custom -d ../soap ../onvif_head/onvif.h
-
+soapcpp2 -2 -c++11 -C -L -x -I import:custom -d ../onvif ../onvif_head/onvif.h
 popd
 
 # 拷贝其他还有会用的源码
@@ -26,6 +24,13 @@ mv soap/struct_timeval.c soap/struct_timeval.cpp
 mv soap/wsaapi.c soap/wsaapi.cpp
 mv soap/duration.c soap/duration.cpp
 
-mv soap/wsdd.nsmap soap/wsdd.nsmap.bak
-rm soap/*.nsmap
-mv soap/wsdd.nsmap.bak soap/wsdd.nsmap
+# 用于授权验证的一些文件
+cp gsoap/dom.cpp gsoap/plugin/mecevp.* gsoap/plugin/smdevp.* gsoap/plugin/threads.* gsoap/plugin/wsseapi.* soap
+mv soap/mecevp.c soap/mecevp.cpp
+mv soap/smdevp.c soap/smdevp.cpp
+mv soap/threads.c soap/threads.cpp
+
+# 删除多余nsmap——都一样，冗余了
+mv onvif/wsdd.nsmap onvif/wsdd.nsmap.bak
+rm onvif/*.nsmap
+mv onvif/wsdd.nsmap.bak onvif/wsdd.nsmap

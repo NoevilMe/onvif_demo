@@ -1,20 +1,34 @@
 cmake_minimum_required(VERSION 3.0)
 project(OnvifSoap)
 
-cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(
-  onvif_soap STATIC
-  soap/struct_timeval.cpp
-  # soap/struct_tm.cpp
-  soap/duration.cpp
-  soap/wsaapi.cpp
-  soap/soapC.cpp
-  soap/soapClient.cpp
-  soap/stdsoap2.cpp)
-target_include_directories(onvif_soap PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_CXX_FLAGS "-g -O0")
 
-add_executable(onvif_scan tests/scan_device.cpp)
-target_link_libraries(onvif_scan PRIVATE onvif_soap)
-target_include_directories(onvif_scan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/soap)
+set(LIB_SOAP_SRC
+    soap/struct_timeval.cpp
+    soap/duration.cpp
+    soap/wsaapi.cpp
+    soap/dom.cpp
+    soap/wsseapi.cpp
+    soap/smdevp.cpp
+    soap/mecevp.cpp
+    soap/threads.cpp
+    soap/stdsoap2.cpp)
+
+add_library(onvif_soap STATIC ${LIB_SOAP_SRC})
+target_link_libraries(onvif_soap PUBLIC ssl crypto)
+target_compile_definitions(onvif_soap PUBLIC WITH_OPENSSL WITH_DOM)
+target_include_directories(onvif_soap PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/onvif)
+
+add_library(onvif STATIC onvif/soapC.cpp onvif/soapClient.cpp)
+target_include_directories(onvif PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(onvif PUBLIC onvif_soap)
+
+add_executable(dev_scan tests/scan_device.cpp)
+target_link_libraries(dev_scan PRIVATE onvif)
+target_include_directories(dev_scan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/soap)
+
+add_executable(dev_info tests/get_device_information.cpp)
+target_link_libraries(dev_info PRIVATE onvif)
+target_include_directories(dev_info PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/soap)
