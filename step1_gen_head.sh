@@ -17,6 +17,8 @@ wsdl2h -c++11 -x -t gsoap/typemap.dat -o ${DST} \
    https://www.onvif.org/ver10/device/wsdl/devicemgmt.wsdl \
    https://www.onvif.org/onvif/ver10/network/wsdl/remotediscovery.wsdl \
    https://www.onvif.org/onvif/ver20/ptz/wsdl/ptz.wsdl \
+   https://www.onvif.org/onvif/ver20/imaging/wsdl/imaging.wsdl \
+   https://www.onvif.org/onvif/ver10/deviceio.wsdl \
    https://www.onvif.org/onvif/ver10/media/wsdl/media.wsdl \
    https://www.onvif.org/onvif/ver20/media/wsdl/media.wsdl
 # https://www.onvif.org/ver10/events/wsdl/event.wsdl \

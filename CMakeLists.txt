@@ -4,6 +4,7 @@ project(OnvifSoap)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_FLAGS "-g -O0")
+set(ENABLE_GSOAP_DEBUG_LOG ON)
 
 set(LIB_SOAP_SRC
     soap/struct_timeval.cpp
@@ -19,6 +20,10 @@ set(LIB_SOAP_SRC
 add_library(onvif_soap STATIC ${LIB_SOAP_SRC})
 target_link_libraries(onvif_soap PUBLIC ssl crypto)
 target_compile_definitions(onvif_soap PUBLIC WITH_OPENSSL WITH_DOM)
+if(ENABLE_GSOAP_DEBUG_LOG)
+  # 会生成RECV.log  SENT.log  TEST.log
+  target_compile_definitions(onvif_soap PUBLIC SOAP_DEBUG)
+endif()
 target_include_directories(onvif_soap PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/onvif)
 
 add_library(onvif STATIC onvif/soapC.cpp onvif/soapClient.cpp)
@@ -30,3 +35,6 @@ target_link_libraries(dev_scan PRIVATE onvif)
 
 add_executable(dev_info tests/get_device_information.cpp)
 target_link_libraries(dev_info PRIVATE onvif)
+
+add_executable(dev_strmi tests/get_stream_uri.cpp)
+target_link_libraries(dev_strmi PRIVATE onvif)

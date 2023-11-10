@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "defines.h"
 #include "onvif/wsdd.nsmap"
 
 #define SOAP_ASSERT assert
@@ -180,30 +181,6 @@ void ONVIF_DetectDevice(void (*cb)(char *DeviceXAddr)) {
                         std::cout << probeMatch->XAddrs << ", "
                                   << probeMatch->Types << std::endl;
 
-                        // {
-                        //     struct _tds__GetDeviceInformation devinfo_req;
-                        //     struct _tds__GetDeviceInformationResponse
-                        //         devinfo_resp;
-
-                        //     memset(&devinfo_req, 0x00, sizeof(devinfo_req));
-                        //     memset(&devinfo_resp, 0x00,
-                        //     sizeof(devinfo_resp)); result =
-                        //     soap_call___tds__GetDeviceInformation(
-                        //         soap, probeMatch->XAddrs, NULL, &devinfo_req,
-                        //         devinfo_resp);
-
-                        //     //
-                        //     dump_tds__GetDeviceInformationResponse(&devinfo_resp);
-                        //     printf("Manufacturer:%s\n",
-                        //            devinfo_resp.Manufacturer);
-                        //     printf("Model:%s\n", devinfo_resp.Model);
-                        //     printf("FirmwareVersion:%s\n",
-                        //            devinfo_resp.FirmwareVersion);
-                        //     printf("SerialNumber:%s\n",
-                        //            devinfo_resp.SerialNumber);
-                        //     printf("HardwareId:%s\n",
-                        //     devinfo_resp.HardwareId);
-                        // }
                         if (NULL != cb) {
                             cb(probeMatch
                                    ->XAddrs); // 使用设备服务地址执行函数回调
@@ -250,9 +227,6 @@ EXIT:
 
     return result;
 }
-
-#define USERNAME "admin"
-#define PASSWORD "admin"
 
 /************************************************************************
 **函数：ONVIF_GetDeviceInformation

@@ -144,6 +144,7 @@ void ONVIF_DetectDevice(void (*cb)(char *DeviceXAddr)) {
 
     result = soap_send___wsdd__Probe(onvif_soap.soap(), SOAP_MCAST_ADDR, NULL,
                                      &req); // 向组播地址广播Probe消息
+
     while (SOAP_OK == result) // 开始循环接收设备发送过来的消息
     {
         soap_default___wsdd__ProbeMatches(onvif_soap.soap(), &rep);
